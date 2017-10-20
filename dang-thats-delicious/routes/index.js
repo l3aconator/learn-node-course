@@ -18,6 +18,11 @@ router.get('/', (req, res) => {
     // --- takes data from query string http://localhost:7777/?name=wes&age=100&cool=true
     // res.send(req.query.name);
     // res.json(req.query);
+
+    res.render('hello', {
+        name: 'wes',
+        dog: req.query.dog
+    });
 });
 
 router.get('/reverse/:name', (req, res) => {
