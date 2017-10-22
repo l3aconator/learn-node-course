@@ -16,8 +16,14 @@ router.post('/add/:id',
     storeController.upload,
     catchErrors(storeController.resize),
     catchErrors(storeController.createStore)
+    // modular design with the middleware,
+    // it does all the hard stuff, the
+    // final createStore method or any
+    // final method saves it to the database
 );
 
 router.get('/stores/:id/edit', catchErrors(storeController.editStore));
+
+router.get('/store/:slug', catchErrors(storeController.getStoreBySlug));
 
 module.exports = router;
