@@ -54,13 +54,13 @@ exports.getStores = async (req, res) => {
     // 1. Query the database for a list of all stores
     const stores = await Store.find();
     res.render('stores', { title: 'Stores', stores })
-}
+};
 
 const confirmOwner = (store, user) => {
     if(!store.author.equals(user._id)) {
         throw Error('You must own a store in order to edit it!');
     }
-}
+};
 
 // const confirmAdmin = (store, user) => {
 //     if(!store.author.equals(user._id) || user.level < 10) {
@@ -75,7 +75,7 @@ exports.editStore = async (req, res) => {
     confirmOwner(store, req.user);
     // 3. Render out the edit form so the user can update their store
     res.render('editStore', { title: `Edit ${store.name}`, store });
-}
+};
 
 exports.updateStore = async (req, res) => {
     // set the location data to be a Point
@@ -89,7 +89,7 @@ exports.updateStore = async (req, res) => {
     // 2. redirect them the store and tell them it worked.
     req.flash('success', `Successfully updated <strong>${store.name}</strong>. <a href="/stores/${store.slug}">View Store »</a>`);
     res.redirect(`/stores/${store._id}/edit`);
-}
+};
 
 exports.getStoreBySlug = async (req, res, next) => {
     // 1. find the slug of the store
@@ -99,8 +99,7 @@ exports.getStoreBySlug = async (req, res, next) => {
 
     // 2. render out the template
     res.render('store', { title: store.name, store});
-}
-
+};
 
 exports.getStoresByTag = async (req, res) => {
     const tag = req.params.tag;
@@ -110,4 +109,24 @@ exports.getStoresByTag = async (req, res) => {
     const [tags, stores] = await Promise.all([tagsPromise, storesPromise]);
 
     res.render('tag', { tags, title: 'Tags', tag, stores });
-}
+};
+
+exports.searchStores = async (req, res) => {
+    const stores = await Store
+    // first find stores that mathc
+    .find({
+        $text: {
+            $search: req.query.q
+        }
+    }, {
+        score: { $meta: 'textScore' }
+    })
+    // then sort them
+    .sort({
+        score: { $meta: 'textScore' }
+    })
+    // the limit to only 5 results
+    .limit(5)
+
+    res.json(stores);
+};
